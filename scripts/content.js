@@ -1,5 +1,5 @@
-// Replace with your API key. DO NOT GIT-COMMIT THIS
-const OPENAI_API_KEY = '';
+// Replace with your API key. DO NOT GIT-COMMIT YOUR API KEY!
+const OPENAI_API_KEY = ''; // DO NOT GIT-COMMIT YOUR API KEY!
 // Safety valve to prevent excessive billing
 const requestLimit = 5;
 
@@ -31,15 +31,15 @@ window.onload = function () {
                         messages: [
                             {
                                 role: 'system',
-                                content: "Take the user's input and return it in all caps. Do not output anything else other than the capitalized input. Be prepared to handle more than just Latin letters, for example Cyrillic (which you should capitalize), katakana (which you should not because katakana doesn't distinguish letter case), numbers, whitespace etc."
+                                content: "Take the user's input and return it in all caps. Do not output anything else other than the capitalized input. Be prepared to handle more than just Latin letters, for example Cyrillic (which you should capitalize), katakana (which you should not because katakana doesn't distinguish letter case), numbers, whitespace, symbols etc."
                             },
                             {
                                 role: 'user',
-                                content: "The 2nd letter of the Russian alphabet is б.\nThe 3rd letter of the Russian alphabet is в."
+                                content: "The 2nd letter of the Russian alphabet is б.\nThe 3rd letter of the Russian alphabet is в.\n<div>"
                             },
                             {
                                 role: 'assistant',
-                                content: "THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В."
+                                content: "THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В.\n<DIV>"
                             },
                             {
                                 role: 'user',
