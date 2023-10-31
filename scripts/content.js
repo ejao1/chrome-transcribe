@@ -1,12 +1,94 @@
 // Replace with your API key. DO NOT GIT-COMMIT YOUR API KEY!
 const OPENAI_API_KEY = ''; // DO NOT GIT-COMMIT YOUR API KEY!
-// Safety valve to prevent excessive billing
-const requestLimit = 5;
+const API_URL = 'https://api.openai.com/v1/chat/completions';
+const MODEL = 'gpt-3.5-turbo';
+// Safety valve to prevent excessive billing. Note that OpenAI charges per token and we don't look at the length of texts yet
+const requestLimit = 1;
+// Number of text nodes to batch together per API request
+const batchSize = 150;
 
-window.onload = function () {
+const PROMPT = 'The user will provide a JSON array of strings. Output a JSON array of strings where ' +
+    'each output string is the input string capitalized. Do not output anything else other than the ' +
+    'capitalized input. Be prepared to handle more than just Latin letters, for example Cyrillic ' +
+    '(which you should capitalize), katakana (which you should not because katakana doesn\'t ' +
+    'distinguish letter case), numbers, whitespace, symbols etc. Any JSON reserved characters will ' +
+    'be properly escaped in the input and you must escape them accordingly in the output. The input ' +
+    'will be a valid JSON array, but do not make assumptions about whether it\'s pretty-printed or not. ' +
+    'If the inner input strings themselves happen to contain JSON, however, you should maintain any whitespace ' +
+    'found inside the input strings, just like numbers/symbols/punctuation, but any such JSON found inside an ' +
+    'inner input string should be capitalized like everything else in the inner input strings even if that ' +
+    'changes the meaning of said JSON.'
+
+const SAMPLE_INPUT = '["The 2nd letter of the Russian alphabet is б.\\nThe 3rd letter of the Russian alphabet is в.\\n<div>",' +
+    '"asdfasdfasdf", "{\\"foo\\": \\n\\"ba\\\\nr\\"}","def foo:\\n\\tpass"]';
+
+const SAMPLE_OUTPUT = '["THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В.\\n<DIV>",' +
+    '"ASDFASDFASDF", "{\\"FOO\\": \\n\\"BA\\\\NR\\"}","DEF FOO:\\n\\tPASS"]';
+
+// Given a nonempty array of strings, package them into an API request and return a promise
+function fetchCompletions(texts) {
+    const chatMessages = [
+        {
+            role: 'system',
+            content: PROMPT
+        },
+        {
+            role: 'user',
+            content: SAMPLE_INPUT
+        },
+        {
+            role: 'assistant',
+            content: SAMPLE_OUTPUT
+        },
+        {
+            role: 'user',
+            content: JSON.stringify(texts)
+        }
+    ];
+    return fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: MODEL,
+            messages: chatMessages,
+        })
+    });
+}
+
+// Given an array of text nodes, package them into an API request and asynchronously update their text content
+// from the API response
+function processNodeBatch(nodes) {
+    if (nodes.length === 0) {
+        return;
+    }
+
+    const texts = nodes.map(node => node.textContent);
+    fetchCompletions(texts)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error:', data.error);
+            } else {
+                const transformedTexts = JSON.parse(data.choices[0].message.content)
+
+                // Update the text content of each node with the corresponding response
+                nodes.forEach((node, index) => {
+                    node.textContent = transformedTexts[index];
+                });
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function main() {
     // Select all descendants of body
     const allElements = document.querySelectorAll('body *');
-    let counter = 0;
+    let requestCounter = 0;
+    let nodeCounter = 0;
+    let nodes = [];
 
     for (let i = 0; i < allElements.length; i++) {
         const currentElement = allElements[i];
@@ -19,52 +101,26 @@ window.onload = function () {
                 continue;
             }
 
-            // If it's a text node, send it to the API and replace with the response on a best-effort basis,
-            // logging API errors and continuing on.
-            let currentText = currentNode.textContent;
+            // If it's a text node, add it to the batch
+            nodes.push(currentNode);
+            nodeCounter++;
+            if (nodeCounter >= batchSize) {
+                // If we've reached the batch size, process the batch and reset the counter and batch. Replacements
+                // are done best-effort; any API errors are logged and that batch is skipped.
+                processNodeBatch(nodes);
+                nodeCounter = 0;
+                nodes = [];
 
-            fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${OPENAI_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
-                    messages: [
-                        {
-                            role: 'system',
-                            content: "Take the user's input and return it in all caps. Do not output anything else other than the capitalized input. Be prepared to handle more than just Latin letters, for example Cyrillic (which you should capitalize), katakana (which you should not because katakana doesn't distinguish letter case), numbers, whitespace, symbols etc."
-                        },
-                        {
-                            role: 'user',
-                            content: "The 2nd letter of the Russian alphabet is б.\nThe 3rd letter of the Russian alphabet is в.\n<div>"
-                        },
-                        {
-                            role: 'assistant',
-                            content: "THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В.\n<DIV>"
-                        },
-                        {
-                            role: 'user',
-                            content: currentText
-                        }
-                    ],
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Error:', data.error);
-                    } else {
-                        currentNode.textContent = data.choices[0].message.content;
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-
-            counter++;
-            if (counter >= requestLimit) {
-                return;
+                requestCounter++;
+                if (requestCounter >= requestLimit) {
+                    return;
+                }
             }
         }
     }
+
+    // Process the final batch
+    processNodeBatch(nodes);
 }
+
+window.onload = main;
