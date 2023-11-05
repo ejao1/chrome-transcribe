@@ -5,17 +5,17 @@ const requestLimit = 10;
 // Number of text nodes to batch together per API request
 const batchSize = 25;
 
-const PROMPT = 'The user will provide a JSON array of strings. Output a JSON array of strings where ' +
-    'each output string is the input string capitalized. Do not output anything else other than the ' +
-    'capitalized input. Be prepared to handle more than just Latin letters, for example Cyrillic ' +
-    '(which you should capitalize), katakana (which you should not because katakana doesn\'t ' +
-    'distinguish letter case), numbers, whitespace, symbols etc. Any JSON reserved characters will ' +
-    'be properly escaped in the input and you must escape them accordingly in the output. The input ' +
-    'will be a valid JSON array, but do not make assumptions about whether it\'s pretty-printed or not. ' +
-    'If the inner input strings themselves happen to contain JSON, however, you should maintain any whitespace ' +
-    'found inside the input strings, just like numbers/symbols/punctuation, but any such JSON found inside an ' +
-    'inner input string should be capitalized like everything else in the inner input strings even if that ' +
-    'changes the meaning of said JSON.'
+const PROMPT = `The user will provide a JSON array of strings. Output a JSON array of strings where
+ each output string is the input string capitalized. Do not output anything else other than the
+ capitalized input. Be prepared to handle more than just Latin letters, for example Cyrillic
+ (which you should capitalize), katakana (which you should not because katakana doesn't
+ distinguish letter case), numbers, whitespace, symbols etc. Any JSON reserved characters will
+ be properly escaped in the input and you must escape them accordingly in the output. The input
+ will be a valid JSON array, but do not make assumptions about whether it's pretty-printed or not.
+ If the inner input strings themselves happen to contain JSON, however, you should maintain any whitespace
+ found inside the input strings, just like numbers/symbols/punctuation, but any such JSON found inside an
+ inner input string should be capitalized like everything else in the inner input strings even if that
+ changes the meaning of said JSON.`;
 
 /*
  * JSON.stringify(SAMPLE_INPUT) == '["The 2nd letter of the Russian alphabet is б.\\nThe 3rd letter of the Russian alphabet is в.\\n<div>",' +
