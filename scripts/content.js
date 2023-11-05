@@ -1,11 +1,9 @@
-// Replace with your API key. DO NOT GIT-COMMIT YOUR API KEY!
-const OPENAI_API_KEY = ''; // DO NOT GIT-COMMIT YOUR API KEY!
 const API_URL = 'https://api.openai.com/v1/chat/completions';
 const MODEL = 'gpt-3.5-turbo';
 // Safety valve to prevent excessive billing. Note that OpenAI charges per token and we don't look at the length of texts yet
-const requestLimit = 1;
+const requestLimit = 10;
 // Number of text nodes to batch together per API request
-const batchSize = 150;
+const batchSize = 25;
 
 const PROMPT = 'The user will provide a JSON array of strings. Output a JSON array of strings where ' +
     'each output string is the input string capitalized. Do not output anything else other than the ' +
@@ -24,6 +22,8 @@ const SAMPLE_INPUT = '["The 2nd letter of the Russian alphabet is б.\\nThe 3rd 
 
 const SAMPLE_OUTPUT = '["THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В.\\n<DIV>",' +
     '"ASDFASDFASDF", "{\\"FOO\\": \\n\\"BA\\\\NR\\"}","DEF FOO:\\n\\tPASS"]';
+
+let openaiApiKey = '';
 
 // Given a nonempty array of strings, package them into an API request and return a promise
 function fetchCompletions(texts) {
@@ -49,7 +49,7 @@ function fetchCompletions(texts) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${OPENAI_API_KEY}`
+            Authorization: `Bearer ${openaiApiKey}`
         },
         body: JSON.stringify({
             model: MODEL,
@@ -123,4 +123,9 @@ function main() {
     processNodeBatch(nodes);
 }
 
-window.onload = main;
+window.onload = function () {
+    chrome.storage.sync.get('apiKey', function (data) {
+        openaiApiKey = data.apiKey;
+        main();
+    })
+};
