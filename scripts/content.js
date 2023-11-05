@@ -38,7 +38,9 @@ const TRANSFORM_TRANSCRIBE_INTO_KATAKANA = {
         ' as well as any letters found in scripts other than Latin ones. Also maintain Latin characters that wouldn\'t make sense' +
         ' to transcribe, for example most acronyms, code snippets, etc. Any JSON reserved characters will be properly escaped in' +
         ' the input and you must escape them accordingly in the output. The input will be a valid JSON array, but do not make' +
-        ' assumptions about whether it\'s pretty-printed or not.',
+        ' assumptions about whether it\'s pretty-printed or not.\nYou\'ll have to make some arbitrary choices, given the' +
+        ' inherent differences in phonemes between the English and Japanese languages. Pick something reasonable and apply them' +
+        ' consistently.',
     SAMPLE_INPUT: [
         'A Tesla coil is a radio frequency oscillator that drives an air-core double-tuned resonant transformer to' +
             ' produce high voltages at low currents. Tesla\'s original circuits as well as most modern coils use a simple spark gap' +
