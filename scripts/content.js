@@ -5,7 +5,8 @@ const requestLimit = 10;
 // Number of text nodes to batch together per API request
 const batchSize = 25;
 
-const PROMPT = `The user will provide a JSON array of strings. Output a JSON array of strings where
+const TRANSFORM_CAPITALIZE = {
+    PROMPT: `The user will provide a JSON array of strings. Output a JSON array of strings where
  each output string is the input string capitalized. Do not output anything else other than the
  capitalized input. Be prepared to handle more than just Latin letters, for example Cyrillic
  (which you should capitalize), katakana (which you should not because katakana doesn't
@@ -15,29 +16,46 @@ const PROMPT = `The user will provide a JSON array of strings. Output a JSON arr
  If the inner input strings themselves happen to contain JSON, however, you should maintain any whitespace
  found inside the input strings, just like numbers/symbols/punctuation, but any such JSON found inside an
  inner input string should be capitalized like everything else in the inner input strings even if that
- changes the meaning of said JSON.`;
+ changes the meaning of said JSON.`,
+    SAMPLE_INPUT: [
+        'The 2nd letter of the Russian alphabet is б.\nThe 3rd letter of the Russian alphabet is в.\n<div>',
+        'asdfasdfasdf',
+        '{"foo": \n"ba\\nr"}',
+        'def foo:\n\tpass'
+    ],
+    SAMPLE_OUTPUT: [
+        'THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В.\n<DIV>',
+        'ASDFASDFASDF',
+        '{"FOO": \n"BA\\NR"}',
+        'DEF FOO:\n\tPASS'
+    ]
+};
 
-/*
- * JSON.stringify(SAMPLE_INPUT) == '["The 2nd letter of the Russian alphabet is б.\\nThe 3rd letter of the Russian alphabet is в.\\n<div>",' +
- *                                 '"asdfasdfasdf", "{\\"foo\\": \\n\\"ba\\\\nr\\"}","def foo:\\n\\tpass"]';
- */
-const SAMPLE_INPUT = [
-    'The 2nd letter of the Russian alphabet is б.\nThe 3rd letter of the Russian alphabet is в.\n<div>',
-    'asdfasdfasdf',
-    '{"foo": \n"ba\\nr"}',
-    'def foo:\n\tpass'
-];
-
-/*
- * JSON.stringify(SAMPLE_OUTPUT) == '["THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В.\\n<DIV>",' +
- *                                  '"ASDFASDFASDF", "{\\"FOO\\": \\n\\"BA\\\\NR\\"}","DEF FOO:\\n\\tPASS"]';
- */
-const SAMPLE_OUTPUT = [
-    'THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В.\n<DIV>',
-    'ASDFASDFASDF',
-    '{"FOO": \n"BA\\NR"}',
-    'DEF FOO:\n\tPASS'
-];
+const TRANSFORM_TRANSCRIBE_INTO_KATAKANA = {
+    PROMPT: `The user will provide a JSON array of strings. Output a JSON array of strings where
+ each output string is the input string phonetically transcribed (not transliterated) into katakana. Do not output
+ anything else other than the transcribed input. Maintain spaces, punctuation, special characters, etc. in the input,
+ as well as any letters found in scripts other than Latin ones. Also maintain Latin characters that wouldn't make sense
+ to transcribe, for example most acronyms, code snippets, etc. Any JSON reserved characters will be properly escaped in
+ the input and you must escape them accordingly in the output. The input will be a valid JSON array, but do not make
+ assumptions about whether it's pretty-printed or not.`,
+    SAMPLE_INPUT: [
+        `A Tesla coil is a radio frequency oscillator that drives an air-core double-tuned resonant transformer to
+ produce high voltages at low currents. Tesla's original circuits as well as most modern coils use a simple spark gap
+ to excite oscillations in the tuned transformer.`,
+        'The 2nd letter of the Russian alphabet is б.',
+        'asdfasdfasdf',
+        'Python function definitions look like this:\n\ndef foo():\n\tpass'
+    ],
+    SAMPLE_OUTPUT: [
+        `ア テスラ コイル イズ ア ラディオ フリークェンシー オシレーター ザット ドライブズ アン エアーコア ダブルツーンド レゾナント
+ トランスフォーマー トゥ プロデュース ハイ ヴォルテージズ アット ロウ カレンツ. テスラズ オリジナル サーキツ アズ ウェル アズ モスト モダン
+ コイルズ ユーズ ア シンプル スパーク ギャップ トゥ エクサイト オシレーションズ イン ザ トゥーンド トランスフォーマー.`,
+        'ザ 2nd レター オブ ザ ラシアン アルファベット イズ б.',
+        'asdfasdfasdf',
+        'Python ファンクション デフィニションズ ルック ライク ディス:\n\ndef foo():\n\tpass'
+    ]
+};
 
 let openaiApiKey = '';
 
@@ -46,15 +64,15 @@ function fetchCompletions(texts) {
     const chatMessages = [
         {
             role: 'system',
-            content: PROMPT
+            content: TRANSFORM_TRANSCRIBE_INTO_KATAKANA.PROMPT
         },
         {
             role: 'user',
-            content: JSON.stringify(SAMPLE_INPUT)
+            content: JSON.stringify(TRANSFORM_TRANSCRIBE_INTO_KATAKANA.SAMPLE_INPUT)
         },
         {
             role: 'assistant',
-            content: JSON.stringify(SAMPLE_OUTPUT)
+            content: JSON.stringify(TRANSFORM_TRANSCRIBE_INTO_KATAKANA.SAMPLE_OUTPUT)
         },
         {
             role: 'user',
