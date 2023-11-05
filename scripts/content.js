@@ -17,11 +17,27 @@ const PROMPT = 'The user will provide a JSON array of strings. Output a JSON arr
     'inner input string should be capitalized like everything else in the inner input strings even if that ' +
     'changes the meaning of said JSON.'
 
-const SAMPLE_INPUT = '["The 2nd letter of the Russian alphabet is б.\\nThe 3rd letter of the Russian alphabet is в.\\n<div>",' +
-    '"asdfasdfasdf", "{\\"foo\\": \\n\\"ba\\\\nr\\"}","def foo:\\n\\tpass"]';
+/*
+ * JSON.stringify(SAMPLE_INPUT) == '["The 2nd letter of the Russian alphabet is б.\\nThe 3rd letter of the Russian alphabet is в.\\n<div>",' +
+ *                                 '"asdfasdfasdf", "{\\"foo\\": \\n\\"ba\\\\nr\\"}","def foo:\\n\\tpass"]';
+ */
+const SAMPLE_INPUT = [
+    'The 2nd letter of the Russian alphabet is б.\nThe 3rd letter of the Russian alphabet is в.\n<div>',
+    'asdfasdfasdf',
+    '{"foo": \n"ba\\nr"}',
+    'def foo:\n\tpass'
+];
 
-const SAMPLE_OUTPUT = '["THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В.\\n<DIV>",' +
-    '"ASDFASDFASDF", "{\\"FOO\\": \\n\\"BA\\\\NR\\"}","DEF FOO:\\n\\tPASS"]';
+/*
+ * JSON.stringify(SAMPLE_OUTPUT) == '["THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В.\\n<DIV>",' +
+ *                                  '"ASDFASDFASDF", "{\\"FOO\\": \\n\\"BA\\\\NR\\"}","DEF FOO:\\n\\tPASS"]';
+ */
+const SAMPLE_OUTPUT = [
+    'THE 2ND LETTER OF THE RUSSIAN ALPHABET IS Б.\nTHE 3RD LETTER OF THE RUSSIAN ALPHABET IS В.\n<DIV>',
+    'ASDFASDFASDF',
+    '{"FOO": \n"BA\\NR"}',
+    'DEF FOO:\n\tPASS'
+];
 
 let openaiApiKey = '';
 
@@ -34,11 +50,11 @@ function fetchCompletions(texts) {
         },
         {
             role: 'user',
-            content: SAMPLE_INPUT
+            content: JSON.stringify(SAMPLE_INPUT)
         },
         {
             role: 'assistant',
-            content: SAMPLE_OUTPUT
+            content: JSON.stringify(SAMPLE_OUTPUT)
         },
         {
             role: 'user',
