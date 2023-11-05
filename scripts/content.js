@@ -6,17 +6,17 @@ const requestLimit = 10;
 const batchSize = 25;
 
 const TRANSFORM_CAPITALIZE = {
-    PROMPT: `The user will provide a JSON array of strings. Output a JSON array of strings where
- each output string is the input string capitalized. Do not output anything else other than the
- capitalized input. Be prepared to handle more than just Latin letters, for example Cyrillic
- (which you should capitalize), katakana (which you should not because katakana doesn't
- distinguish letter case), numbers, whitespace, symbols etc. Any JSON reserved characters will
- be properly escaped in the input and you must escape them accordingly in the output. The input
- will be a valid JSON array, but do not make assumptions about whether it's pretty-printed or not.
- If the inner input strings themselves happen to contain JSON, however, you should maintain any whitespace
- found inside the input strings, just like numbers/symbols/punctuation, but any such JSON found inside an
- inner input string should be capitalized like everything else in the inner input strings even if that
- changes the meaning of said JSON.`,
+    PROMPT: 'The user will provide a JSON array of strings. Output a JSON array of strings where' +
+        ' each output string is the input string capitalized. Do not output anything else other than the' +
+        ' capitalized input. Be prepared to handle more than just Latin letters, for example Cyrillic' +
+        ' (which you should capitalize), katakana (which you should not because katakana doesn\'t' +
+        ' distinguish letter case), numbers, whitespace, symbols etc. Any JSON reserved characters will' +
+        ' be properly escaped in the input and you must escape them accordingly in the output. The input' +
+        ' will be a valid JSON array, but do not make assumptions about whether it\'s pretty-printed or not.' +
+        ' If the inner input strings themselves happen to contain JSON, however, you should maintain any whitespace' +
+        ' found inside the input strings, just like numbers/symbols/punctuation, but any such JSON found inside an' +
+        ' inner input string should be capitalized like everything else in the inner input strings even if that' +
+        ' changes the meaning of said JSON.',
     SAMPLE_INPUT: [
         'The 2nd letter of the Russian alphabet is б.\nThe 3rd letter of the Russian alphabet is в.\n<div>',
         'asdfasdfasdf',
@@ -32,25 +32,25 @@ const TRANSFORM_CAPITALIZE = {
 };
 
 const TRANSFORM_TRANSCRIBE_INTO_KATAKANA = {
-    PROMPT: `The user will provide a JSON array of strings. Output a JSON array of strings where
- each output string is the input string phonetically transcribed (not transliterated) into katakana. Do not output
- anything else other than the transcribed input. Maintain spaces, punctuation, special characters, etc. in the input,
- as well as any letters found in scripts other than Latin ones. Also maintain Latin characters that wouldn't make sense
- to transcribe, for example most acronyms, code snippets, etc. Any JSON reserved characters will be properly escaped in
- the input and you must escape them accordingly in the output. The input will be a valid JSON array, but do not make
- assumptions about whether it's pretty-printed or not.`,
+    PROMPT: 'The user will provide a JSON array of strings. Output a JSON array of strings where' +
+        ' each output string is the input string phonetically transcribed (not transliterated) into katakana. Do not output' +
+        ' anything else other than the transcribed input. Maintain spaces, punctuation, special characters, etc. in the input,' +
+        ' as well as any letters found in scripts other than Latin ones. Also maintain Latin characters that wouldn\'t make sense' +
+        ' to transcribe, for example most acronyms, code snippets, etc. Any JSON reserved characters will be properly escaped in' +
+        ' the input and you must escape them accordingly in the output. The input will be a valid JSON array, but do not make' +
+        ' assumptions about whether it\'s pretty-printed or not.',
     SAMPLE_INPUT: [
-        `A Tesla coil is a radio frequency oscillator that drives an air-core double-tuned resonant transformer to
- produce high voltages at low currents. Tesla's original circuits as well as most modern coils use a simple spark gap
- to excite oscillations in the tuned transformer.`,
+        'A Tesla coil is a radio frequency oscillator that drives an air-core double-tuned resonant transformer to' +
+            ' produce high voltages at low currents. Tesla\'s original circuits as well as most modern coils use a simple spark gap' +
+            ' to excite oscillations in the tuned transformer.',
         'The 2nd letter of the Russian alphabet is б.',
         'asdfasdfasdf',
         'Python function definitions look like this:\n\ndef foo():\n\tpass'
     ],
     SAMPLE_OUTPUT: [
-        `ア テスラ コイル イズ ア ラディオ フリークェンシー オシレーター ザット ドライブズ アン エアーコア ダブルツーンド レゾナント
- トランスフォーマー トゥ プロデュース ハイ ヴォルテージズ アット ロウ カレンツ. テスラズ オリジナル サーキツ アズ ウェル アズ モスト モダン
- コイルズ ユーズ ア シンプル スパーク ギャップ トゥ エクサイト オシレーションズ イン ザ トゥーンド トランスフォーマー.`,
+        'ア テスラ コイル イズ ア ラディオ フリークェンシー オシレーター ザット ドライブズ アン エアーコア ダブルツーンド レゾナント' +
+            ' トランスフォーマー トゥ プロデュース ハイ ヴォルテージズ アット ロウ カレンツ. テスラズ オリジナル サーキツ アズ ウェル アズ モスト モダン' +
+            ' コイルズ ユーズ ア シンプル スパーク ギャップ トゥ エクサイト オシレーションズ イン ザ トゥーンド トランスフォーマー.',
         'ザ 2nd レター オブ ザ ラシアン アルファベット イズ б.',
         'asdfasdfasdf',
         'Python ファンクション デフィニションズ ルック ライク ディス:\n\ndef foo():\n\tpass'
