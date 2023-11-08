@@ -1,19 +1,17 @@
 {
-  "name": "Transcribe",
-  "description": "Transcribe web pages into other scripts",
+  "name": "Wasei Eigo",
+  "description": "Transcribe web pages into katakana",
   "version": "0.0.1",
   "manifest_version": 3,
   "action": {
     "default_popup": "popup/popup.html",
-    "default_icon": "images/hello_extensions.png"
+    "default_icon": "images/icon.png"
   },
   "content_scripts": [
     {
       "js": ["scripts/content.js"],
       "matches": [
-        "https://developer.chrome.com/docs/extensions/*",
-        "https://developer.chrome.com/docs/webstore/*",
-        "https://www.reuters.com/*"
+        "https://www.bloomberg.com/news/*"
       ]
     }
   ],
