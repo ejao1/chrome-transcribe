@@ -11,7 +11,7 @@
     {
       "js": ["scripts/content.js"],
       "matches": [
-        "https://www.bloomberg.com/news/*"
+        "<all_urls>"
       ]
     }
   ],
